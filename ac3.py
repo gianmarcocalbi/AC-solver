@@ -38,15 +38,21 @@ import abc
 
 class Variable:
 
-    def __init__(self):
-        self.domain = ""
+    def __init__(self, domain):
+        self.domain = domain
         self.delta = ""
         self.propagation = ""
 
     def is_in_domain(self, a):
         if a in self.domain:
             return True
-        False
+        return False
+
+    def delta_is_empty(self):
+        return len(self.delta) == 0
+
+    def reset_delta(self):
+        self.delta = []
 
 
 class Propagation:
@@ -64,7 +70,7 @@ class Propagation:
 
     def dequeue(self):
         # remove a variable from the queue (which variable? at the moment I don't know)
-        pass
+        return None
 
     def run(self):
         # // tant que queue_ n'est pas vide
@@ -75,7 +81,34 @@ class Propagation:
         #     // fin pour
         #     // x->reset_delta();
         # // fn tant que
-        pass
+
+        while len(self.queue) > 0:
+            x = self.dequeue()
+            for c in []: # MEGA INCOGNITA FINALE QHAAAAAAT
+                if not c.filter_from(x):
+                    # stop algorithm
+                    pass
+                x.reset_delta()
+
 
 class Constraint:
     def __init__(self):
+        self.x = 0
+        self.y = 0
+        self.matrix = {}
+        pass
+
+    @abc.abstractmethod
+    def filter_from(self, var):
+        pass
+
+
+class AC3Constraint(Constraint):
+    def __init__(self):
+        pass
+
+    def filter_from(self, var):
+        pass
+
+if __name__ == "__main__":
+    pass
