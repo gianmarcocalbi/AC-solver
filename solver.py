@@ -1,4 +1,4 @@
-import abc
+import abc, math, numpy as np
 
 # Input:
 # A set of variables X
@@ -39,9 +39,10 @@ import abc
 class Variable:
 
     def __init__(self, domain):
-        self.domain = domain
-        self.delta = ""
-        self.propagation = ""
+        self.domain = domain # list of allowed values for this variable
+        self.type = type(domain[0])
+        self.delta = []
+        self.propagation = None
 
     def is_in_domain(self, a):
         if a in self.domain:
@@ -89,14 +90,44 @@ class Propagation:
                     # stop algorithm
                     pass
                 x.reset_delta()
+"""
+exp must be a STRING formatted as an aritmetic valid expression in which:
+- "x" stands for the first variable
+- "y" stands for the second variable
+- all constants are allowed
+- all comparison operator are allowed (>, <, >=, <=, =, !=)
+- all aritmetic operators are allowed (+, -, *, /, %)
+- all python aritmetic function are allowed (e.g. "math.pow()", "math.floor()", etc...)
+- other python functions, symbols, variables can potentially break the computation, so they're not allowed 
+"""
+# todo: not number variables
+def tableFromExp(X, Y, exp):
+    table = []
+    for i in range(Y.domain):
+        y = Y.domain[i]
+        table.append([])
+        for j in range(X.domain):
+            x = X.domain[j]
+            table[i].append(eval(exp))
+
+    return table
+
+def tableFromSet(X, Y, set):
+    table = []
+    for i in range(Y.domain):
+        y = Y.domain[i]
+        table.append([])
+        for j in range(X.domain):
+            x = X.domain[j]
+            table[i].append((x,y) in set)
+    return table
 
 
 class Constraint:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-        self.matrix = {}
-        pass
+    def __init__(self, x, y, table):
+        self.x = x
+        self.y = y
+        self.table = table
 
     @abc.abstractmethod
     def filter_from(self, var):
