@@ -145,6 +145,42 @@ class AC3Constraint(Constraint):
         Constraint.__init__(self, x, y, table)
 
     """
+    Let Vi be the first variable of the constraint.
+    Let Vj be the second variable of the constraint.
+    Then the constraint is a set of pairs (x,y) where
+        x is in D(Vi) and y is in D(Vj).
+    Let C(x,y) : D(Vi) x D(Vj) -> {True, False} be a function s.t.
+        C(x,y) = True iff (x,y) is an allowed value for the constraint
+        C(x,y) = False otherwise
+    Then this method returns:
+    - True if for all x, exists at least on y s.t. C(x,y) is true
+    - False if exists at least one x s.t. for all y, C(x,y) is False
+    """
+    def revise(self, Vi, Vj):
+        removed = False
+        Vj_index_to_pop = []
+
+        for i in range(len(Vi.domain)):
+            a = Vi.domain[i]
+            found = False
+            for j in range(len(Vj.domain)):
+                b = Vj.domain[j]
+                if self.consistent(a, b):
+                    found = True
+                    break
+            if not found:
+                Vj_index_to_pop.append(i)
+                removed = True
+
+        Vj_index_to_pop.sort()
+        k = 0
+        for index in Vj_index_to_pop:
+            Vi.domain.pop(index-k)
+            k+=1
+
+        return removed
+
+    """
     Let x be the argument variable.
     Let y be the second variable with regards to the constraint.
     A constraint is a set of pairs (x,y).
@@ -167,27 +203,18 @@ class AC3Constraint(Constraint):
         else:
             raise Exception("Error in filter_from: filtering from a variable that doesn't belong to the constraint")
 
-        domain_index_to_pop = []
+        Q = []
 
-        for i in range(len(considered_var.domain)):
-            a = considered_var.domain[i]
-            found = False
-            for j in range(len(other_var.domain)):
-                b = other_var.domain[j]
-                if self.consistent(a, b):
-                    found = True
-                    break
-            if not found:
-                domain_index_to_pop.append(i)
-                ret = False
+        for a in list(self.table.keys()):
+            for b in list(self.table[a].keys()):
+                Q.append((a,b))
 
-        domain_index_to_pop.sort()
-        i = 0
-        for index in domain_index_to_pop:
-            considered_var.domain.pop(index-i)
-            i+=1
+        while len(Q) > 0:
+            Vk, Vm = Q.pop(0)
+            if self.revise(Vk, Vm):
+                Q.append()
 
-        return ret
+
 
 class AC4Constraint(Constraint):
     def __init__(self, x, y, table):
