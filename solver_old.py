@@ -28,7 +28,7 @@ class Variable:
 class Propagation:
 
     def __init__(self, *constrains):
-        self.queue = []  # contains constraints to parse
+        self.queue = []  # contains variables with not-null delta
         self.graph = {}  # constraints' graph i.e. for each variable the set of constraints with regard to it
 
         for c in constrains:
@@ -40,15 +40,15 @@ class Propagation:
 
             self.graph[c.x.id].append(c)
             self.graph[c.y.id].append(c)
-            self.enqueue((c.x,c.y), (c.y,c.x))
 
     """
-    Add constraint (x,y) into queue whether not present
+    Add variable x into queue whether not present
     """
+
     def enqueue(self, *var):
-        for c in var:
-            if c not in self.queue:
-                self.queue.append(c)
+        for x in var:
+            if x not in self.queue:
+                self.queue.append(x)
 
     def dequeue(self):
         return self.queue.pop(0)
@@ -57,13 +57,15 @@ class Propagation:
         # before starting run() method all variable must be enqueued by user
         # loop through all variables in queue
         while len(self.queue) > 0:
-            c = self.dequeue()
-            if not c.filter_from(c.x):
-                # if filter_from returns True only when D(x) got empty
-                # then stop the algorithm since exists no solution for
-                # the set of constraints provided
-                return False
-            c.x.reset_delta()
+            x = self.dequeue()
+            # loop through all constraints concerning current variable x
+            for c in self.graph[x.id]:
+                if not c.filter_from(x):
+                    # if filter_from returns True only when D(x) got empty
+                    # then stop the algorithm since exists no solution for
+                    # the set of constraints provided
+                    return False
+                x.reset_delta()
         return True
 
 
