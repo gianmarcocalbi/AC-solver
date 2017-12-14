@@ -1,11 +1,19 @@
-class Test:
+class Head:
     def __init__(self):
-        pass
+        self.a = [1, 2, 3, 4]
 
-    def __getitem__(self, item):
-        if item is None:
-            return "MADAMA"
+
+class Body:
+    def __init__(self, head):
+        self.head = head
+
+    def run(self):
+        h = self.head
+        h.a.pop()
+        print(h.a)
+        print(self.head.a)
 
 if __name__ == "__main__":
-    t = Test()
-    print(t[])
+    h = Head()
+    b = Body(h)
+    b.run()
