@@ -1,16 +1,7 @@
 from inc.variable import *
 from inc.propagation import *
 
-"""
-exp must be a STRING formatted as an aritmetic valid expression in which:
-- "x" stands for the first variable
-- "y" stands for the second variable
-- all constants are allowed
-- all comparison operator are allowed (>, <, >=, <=, =, !=)
-- all aritmetic operators are allowed (+, -, *, /, %)
-- all python aritmetic function are allowed (e.g. "math.pow()", "math.floor()", etc...)
-- other python functions, symbols, variables can potentially break the computation, so they're not allowed 
-"""
+
 
 
 class Solver:
@@ -20,9 +11,24 @@ class Solver:
         self.variables = {}
         self.constraints = {}
 
+    """
+    exp must be a STRING formatted as an aritmetic valid expression in which:
+    - "x" stands for the first variable
+    - "y" stands for the second variable
+    - all constants are allowed
+    - all comparison operator are allowed (>, <, >=, <=, =, !=)
+    - all aritmetic operators are allowed (+, -, *, /, %)
+    - all python aritmetic function are allowed (e.g. "math.pow()", "math.floor()", etc...)
+    - other python functions, symbols, variables can potentially break the computation, so they're not allowed 
+    """
+
     @staticmethod
     def tableFromExp(X, Y, exp):
         table = []
+        if X.name in exp:
+            exp = exp.replace(X.name, "x")
+        if Y.name in exp:
+            exp = exp.replace(Y.name, "y")
         for i in range(len(X.domain)):
             x = X.domain[i]
             table.append([])
