@@ -34,5 +34,5 @@ class Constraint:
         return False
 
     @abc.abstractmethod
-    def filter_from(self, var, P):
+    def filter_from(self, var):
         pass

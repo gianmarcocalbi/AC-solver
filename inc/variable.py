@@ -8,10 +8,11 @@ VARIABLE_NAMES = [""]
 
 class Variable:
 
-    def __init__(self, domain, name=""):
+    def __init__(self, domain, propagation, name=""):
         global VARIABLE_NAMES
         self.domain = domain  # list of allowed values for this variable
         self.type = type(domain[0])
+        self.propagation = propagation
         self.delta = []
         self.id = id(self)
         if name in VARIABLE_NAMES:
@@ -19,18 +20,19 @@ class Variable:
         self.name = name
         VARIABLE_NAMES.append(str(self.name))
 
-    def getName(self):
+    def get_name(self):
         return self.name
 
     """
     Returns true if a is removed from domain.
     """
 
-    def remove_value(self, a, P):
+    def remove_value(self, a):
         if self.is_in_domain(a):
             self.domain.pop(self.domain.index(a))
-            self.delta.append(a)
-            P.enqueue([self])
+            if not a in self.delta:
+                self.delta.append(a)
+            self.propagation.enqueue(self)
             return True
         return False
 

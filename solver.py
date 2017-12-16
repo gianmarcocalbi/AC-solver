@@ -10,6 +10,7 @@ class Solver:
         self.algo = algo
         self.variables = {}
         self.constraints = {}
+        self.propagation = Propagation()
 
     """
     exp must be a STRING formatted as an aritmetic valid expression in which:
@@ -23,7 +24,7 @@ class Solver:
     """
 
     @staticmethod
-    def tableFromExp(X, Y, exp):
+    def table_from_exp(X, Y, exp):
         table = []
         if X.name in exp:
             exp = exp.replace(X.name, "x")
@@ -38,7 +39,7 @@ class Solver:
         return table
 
     @staticmethod
-    def tableFromSet(X, Y, allowedValueSet):
+    def table_from_set(X, Y, allowedValueSet):
         table = []
         for i in range(len(X.domain)):
             x = X.domain[i]
@@ -48,34 +49,33 @@ class Solver:
                 table[i].append((x, y) in allowedValueSet)
         return table
 
-    def addVariable(self, domain, name=""):
-        v = Variable(domain, name)
+    def add_variable(self, domain, name=""):
+        v = Variable(domain, self.propagation, name)
         self.variables[v.name] = v
         return v.name
 
-    def getVariable(self, name):
+    def get_variable(self, name):
         if name in self.variables:
             return self.variables[name]
         return None
 
-    def addConstraint(self, x_name, y_name, exp, name=""):
+    def add_constraint(self, x_name, y_name, exp, name=""):
         x = self.variables[x_name]
         y = self.variables[y_name]
-        c = self.algo(x, y, self.tableFromExp(x, y, exp), name)
+        c = self.algo(x, y, self.table_from_exp(x, y, exp), name)
         self.constraints[c.name] = c
         return c.name
 
-    def addCustomConstraint(self, x_name, y_name, allowedValueSet, name=""):
+    def add_custom_constraint(self, x_name, y_name, allowedValueSet, name=""):
         x = self.variables[x_name]
         y = self.variables[y_name]
-        c = self.algo(x, y, self.tableFromSet(x, y, allowedValueSet), name)
+        c = self.algo(x, y, self.table_from_set(x, y, allowedValueSet), name)
         self.constraints[c.name] = c
         return c.name
 
     def filter(self):
-        propagation = Propagation(list(self.constraints.values()))
-        propagation.enqueue(list(self.variables.values()))
-        propagation.run()
+        self.propagation.build_graph(list(self.constraints.values()))
+        self.propagation.run()
 
     def solve(self):
         pass

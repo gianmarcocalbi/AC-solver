@@ -4,6 +4,7 @@ from inc.constraint_interface import *
 class AC3Constraint(Constraint):
     def __init__(self, x, y, table, name=""):
         Constraint.__init__(self, x, y, table, name)
+        x.propagation.enqueue(x)
 
     """
     Let x be the argument variable.
@@ -17,7 +18,7 @@ class AC3Constraint(Constraint):
     - False if exists at least one x s.t. for all y, C(x,y) == False
     """
 
-    def filter_from(self, var, P):
+    def filter_from(self, var):
         if var.id == self.x.id:
             main_var = self.y
             supp_var = self.x
@@ -29,23 +30,27 @@ class AC3Constraint(Constraint):
 
         value_to_pop = []
 
-        for i in range(len(main_var.domain)):
-            a = main_var.domain[i]
-            found = False
-            for j in range(len(supp_var.domain)):
-                b = supp_var.domain[j]
+        if main_var.delta_is_empty():
+            # if delta is empty is the first time we check this variable
+            # so we must check all arcs
 
-                if main_var == self.x:
-                    found = self.consistent(a, b)
-                else:
-                    found = self.consistent(b, a)
+            for i in range(len(main_var.domain)):
+                a = main_var.domain[i]
+                found = False
+                for j in range(len(supp_var.domain)):
+                    b = supp_var.domain[j]
 
-                if found:
-                    break
-            if not found:
-                value_to_pop.append(a)
+                    if main_var == self.x:
+                        found = self.consistent(a, b)
+                    else:
+                        found = self.consistent(b, a)
+
+                    if found:
+                        break
+                if not found:
+                    value_to_pop.append(a)
 
         for val in value_to_pop:
-            main_var.remove_value(val, P)
+            main_var.remove_value(val)
 
         return len(main_var.domain) > 0

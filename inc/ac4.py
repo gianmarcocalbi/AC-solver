@@ -2,18 +2,40 @@ from inc.constraint_interface import *
 
 
 class AC4Constraint(Constraint):
-    def __init__(self, x, y, table):
-        Constraint.__init__(self, x, y, table)
+    def __init__(self, x, y, table, name=""):
+        Constraint.__init__(self, x, y, table, name)
 
-        self.S = {
-            "x": {},
-            "y": {}
+        # AC4 initialization
+        S = {
+            x.id: {},
+            y.id: {}
         }
 
-        for a in list(self.table.keys()):
-            for b in list(self.table[a].keys()):
-                self.S["x"][a].append(b)
-                self.S["y"][b].append(a)
+        for a in x.domain:
+            S[x.id][a] = []
+            for b in y.domain:
+                if not b in S[y.id]:
+                    S[y.id][b] = []
+                if self.consistent(a, b):
+                    S[x.id][a].append(b)
+                    S[y.id][b].append(a)
+
+        self.S = {
+            x.id: {},
+            y.id: {}
+        }
+
+        for a in x.domain[:]:
+            if len(S[x.id][a]) > 0:
+                self.S[x.id][a] = S[x.id][a]
+            else:
+                x.remove_value(a)
+
+        for b in y.domain[:]:
+            if len(S[y.id][b]) > 0:
+                self.S[y.id][b] = S[y.id][b]
+            else:
+                y.remove_value(b)
 
     """
     Let x be the argument variable.
@@ -27,46 +49,23 @@ class AC4Constraint(Constraint):
     - False if exists at least one x s.t. for all y, C(x,y) == False
     """
 
-    def filter_from(self, var, P):
-        ret = True
+    def filter_from(self, var):
 
         if var.id == self.x.id:
-            considered_var = self.x
-            considered_var.tag = "x"
-            other_var = self.y
-            other_var.tag = "y"
+            main_var = self.x
+            supp_var = self.y
         elif var.id == self.y.id:
-            considered_var = self.y
-            considered_var.tag = "y"
-            other_var = self.x
-            other_var.tag = "x"
+            main_var = self.y
+            supp_var = self.x
         else:
             raise Exception("Error in filter_from: filtering from a variable that doesn't belong to the constraint")
 
-        domain_index_to_pop = []
+        for i in range(len(main_var.delta)):
+            a = main_var.delta[i]
+            if a in self.S[main_var.id]:
+                for b in self.S[main_var.id][a]:
+                    self.S[supp_var.id][b].remove(a)
+                    if len(self.S[supp_var.id][b]) == 0:
+                        supp_var.remove_value(b)
 
-        for a in considered_var.delta:
-            for b in self.S[considered_var.tag][a]:
-                self.S[other_var.tag][b].remove(a)
-                if len(self.S[other_var.tag][b]):
-                    del self.S[other_var.tag][b]
-                    domain_index_to_pop.append(other_var.domain.index(b))
-
-        domain_index_to_pop.sort()
-        i = 0
-        for index in domain_index_to_pop:
-            considered_var.domain.pop(index - i)
-            i += 1
-
-        for i in range(len(considered_var.domain)):
-            a = considered_var.domain[i]
-            found = False
-            for j in range(len(other_var.domain)):
-                b = other_var.domain[j]
-                if self.consistent(a, b):
-                    found = True
-                    break
-            if not found:
-                domain_index_to_pop.append(i)
-                ret = False
-        return ret
+        return len(main_var.domain) > 0
