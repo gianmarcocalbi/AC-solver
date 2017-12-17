@@ -5,6 +5,7 @@ from inc.ac6 import *
 from inc.ac2001 import *
 
 if __name__ == "__main__":
+
     solver = Solver(AC6Constraint)
     solver.add_variable(list(range(0, 10)), "a")
     solver.add_variable(list(range(0, 10)), "b")
@@ -17,10 +18,10 @@ if __name__ == "__main__":
     print(solver.get_variable("c").domain)
 
     """
-    solver = Solver(AC3Constraint)
-    solver.add_variable(list(range(0, 2)), "a")
+    solver = Solver(AC6Constraint)
+    solver.add_variable(list(range(0, 3)), "a")
     solver.add_variable(list(range(0, 3)), "b")
-    solver.add_variable(list(range(0, 3)), "c")
+    solver.add_variable(list(range(0, 2)), "c")
     solver.add_constraint("a", "b", "a == b", "Cab")
     solver.add_constraint("b", "c", "b == c", "Cbc")
     solver.filter()

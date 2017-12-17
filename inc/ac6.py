@@ -5,7 +5,7 @@ class AC6Constraint(Constraint):
     def __init__(self, x, y, table, name=""):
         Constraint.__init__(self, x, y, table, name)
 
-        # AC4 initialization
+        # AC6 initialization
         self.S = {
             x.id: {},
             y.id: {}
@@ -77,22 +77,27 @@ class AC6Constraint(Constraint):
 
         for i in range(len(main_var.delta)):
             a = main_var.delta[i]
-            for b in self.S[main_var.id][a]:
-                # self.S[supp_var.id][b].remove(a)
-                found = False
-                alt_a = None
-                for j in range(main_var.domain.index(a), len(main_var.domain)):
-                    alt_a = main_var.domain[j]
-                    if main_var == self.x:
-                        found = self.consistent(alt_a, b)
-                    else:
-                        found = self.consistent(b, alt_a)
+            if a in self.S[main_var.id]:
+                for b in self.S[main_var.id][a]:
+                    # self.S[supp_var.id][b].remove(a)
+                    found = False
+                    alt_a = None
 
-                if found:
-                    self.S[main_var.id][alt_a].append(b)
-                else:
-                    supp_var.remove_value(b)
-                    # del self.S[supp_var.id][b]
-            del self.S[main_var.id][a]
+                    keys = list(self.S[main_var.id].keys())
+
+                    for j in range(keys.index(a), len(keys)):
+                        if main_var.is_in_domain(keys[j]):
+                            alt_a = keys[j]
+                            if main_var == self.x:
+                                found = self.consistent(alt_a, b)
+                            else:
+                                found = self.consistent(b, alt_a)
+
+                        if found:
+                            self.S[main_var.id][alt_a].append(b)
+                        else:
+                            supp_var.remove_value(b)
+                            # del self.S[supp_var.id][b]
+                del self.S[main_var.id][a]
 
         return len(main_var.domain) > 0
