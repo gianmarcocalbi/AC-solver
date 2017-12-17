@@ -2,8 +2,6 @@ from inc.variable import *
 from inc.propagation import *
 
 
-
-
 class Solver:
 
     def __init__(self, algo):
@@ -12,19 +10,23 @@ class Solver:
         self.constraints = {}
         self.propagation = Propagation()
 
-    """
-    exp must be a STRING formatted as an aritmetic valid expression in which:
-    - "x" stands for the first variable
-    - "y" stands for the second variable
-    - all constants are allowed
-    - all comparison operator are allowed (>, <, >=, <=, =, !=)
-    - all aritmetic operators are allowed (+, -, *, /, %)
-    - all python aritmetic function are allowed (e.g. "math.pow()", "math.floor()", etc...)
-    - other python functions, symbols, variables can potentially break the computation, so they're not allowed 
-    """
-
     @staticmethod
     def table_from_exp(X, Y, exp):
+        """
+        Creates a table for two variables evaluating a boolean expression
+        :param X: first variable of the constraint
+        :param Y: second variable of the constraint
+        :param exp: must be a STRING formatted as valid Python 3 boolean expression.
+        Nota Bene:
+        - address each variable with its name, so if the name of the first variable is "x"
+            then use "x" inside the expression
+        - all constants are allowed
+        - all comparison operator are allowed (>, <, >=, <=, =, !=)
+        - all aritmetic operators are allowed (+, -, *, /, %)
+        - all python aritmetic function are allowed (e.g. "math.pow()", "math.floor()", etc...)
+        - etc...
+        :return: boolean matrix table
+        """
         table = []
         if X.name in exp:
             exp = exp.replace(X.name, "x")
@@ -40,6 +42,13 @@ class Solver:
 
     @staticmethod
     def table_from_set(X, Y, allowedValueSet):
+        """
+        Creates a table for two variables starting from pairs of allowed value
+        :param X: first variable
+        :param Y: second variable
+        :param allowedValueSet: list of pairs of values (values must be in domains of variables)
+        :return: boolean matrix table
+        """
         table = []
         for i in range(len(X.domain)):
             x = X.domain[i]
