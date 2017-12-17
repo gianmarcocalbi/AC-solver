@@ -6,19 +6,13 @@ class AC3Constraint(Constraint):
         Constraint.__init__(self, x, y, table, name)
         x.propagation.enqueue(x)
 
-    """
-    Let x be the argument variable.
-    Let y be the second variable with regards to the constraint.
-    A constraint is a set of pairs (x,y).
-    Let C(x,y) : D(x) x D(y) -> {True, False} be a function s.t.
-        C(x,y) = True iff (x,y) is an allowed value for the constraint
-        C(x,y) = False otherwise
-    Then this method returns:
-    - True if for all x, exists at least on y s.t. C(x,y) is true
-    - False if exists at least one x s.t. for all y, C(x,y) == False
-    """
-
     def filter_from(self, var):
+        """
+        Let Ci(x,y) be the constraint, let var be x.
+        This method filter from x so loop through values of y.
+        :param var: Variable which filter from
+        :return: False if var.domain got empty during the process, True otherwise.
+        """
         if var.id == self.x.id:
             main_var = self.y
             supp_var = self.x

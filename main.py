@@ -5,7 +5,7 @@ from inc.ac6 import *
 from inc.ac2001 import *
 
 if __name__ == "__main__":
-    solver = Solver(AC4Constraint)
+    solver = Solver(AC6Constraint)
     solver.add_variable(list(range(0, 10)), "a")
     solver.add_variable(list(range(0, 10)), "b")
     solver.add_variable(list(range(0, 10)), "c")
