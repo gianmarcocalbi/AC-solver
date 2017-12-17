@@ -102,4 +102,5 @@ ENV/
 
 .idea/*.*
 *.iml
+*.xml
 .idea/inspectionProfiles/
