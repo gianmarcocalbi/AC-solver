@@ -1,5 +1,6 @@
 from inc.variable import *
 from inc.propagation import *
+from inc.backtracking import *
 
 
 class Solver:
@@ -82,9 +83,41 @@ class Solver:
         self.constraints[c.name] = c
         return c.name
 
-    def filter(self):
+    def filter_domains(self):
         self.propagation.build_graph(list(self.constraints.values()))
         self.propagation.run()
 
     def solve(self):
-        pass
+        if not self.propagation.run():
+            return []
+
+        self.sort_variables()
+
+        return self.backtracking([v.domain for v in self.variables])
+
+    def sort_variables(self):
+        var_domain_size = [len(x.domain) for x in self.variables]
+        self.variables = [x for _, x in sorted(zip(var_domain_size, self.variables))]
+
+    def backtracking(self, domains):
+        for i in range(len(self.variables)):
+            self.variables[i].domain = domains[i]
+
+        """
+        if all len(domains) == 1:
+            # then is a full assignment A = (x1, x2, ..., xN) for the problem
+            if accepted(A):
+                return [A]
+            else:
+                # assignement is not valid
+                return []
+        else:
+            # restrict one variable domain
+            x <- first variable of which len(x.domain) > 1
+            return 
+        """
+
+        if len(self.backtracking([v.domain for v in self.variables])) == 0:
+            return []
+        else:
+            pass

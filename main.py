@@ -24,7 +24,7 @@ if __name__ == "__main__":
     solver.add_variable(list(range(0, 2)), "c")
     solver.add_constraint("a", "b", "a == b", "Cab")
     solver.add_constraint("b", "c", "b == c", "Cbc")
-    solver.filter()
+    solver.filter_domains()
     print(solver.get_variable("a").domain)
     print(solver.get_variable("b").domain)
     print(solver.get_variable("c").domain)
