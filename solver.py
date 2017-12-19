@@ -60,13 +60,22 @@ class Solver:
         return table
 
     def add_variable(self, domain, name=""):
-        v = Variable(domain, self.propagation, name)
-        self.variables[v.name] = v
-        return v.name
+        if not name in self.variables:
+            v = Variable(domain, self.propagation, name)
+            self.variables[v.name] = v
+            return v.name
+        else:
+            raise Exception("Duplicate variable name is not allowed!")
 
-    def get_variable(self, name):
+    def get_variable_by_name(self, name):
         if name in self.variables:
             return self.variables[name]
+        return None
+
+    def get_variable_by_id(self, var_id):
+        for x in self.variables:
+            if var_id == x.id:
+                return x
         return None
 
     def add_constraint(self, x_name, y_name, exp, name=""):
@@ -86,6 +95,10 @@ class Solver:
     def filter_domains(self):
         self.propagation.build_graph(list(self.constraints.values()))
         self.propagation.run()
+        filtered_domains = {}
+        for x in self.variables:
+            filtered_domains[x.name] = x.domain
+        return filtered_domains
 
     def solve(self):
         if not self.propagation.run():
@@ -95,13 +108,42 @@ class Solver:
 
         return self.backtracking([v.domain for v in self.variables])
 
-    def sort_variables(self):
+    def get_domains_order(self, domains):
         var_domain_size = [len(x.domain) for x in self.variables]
-        self.variables = [x for _, x in sorted(zip(var_domain_size, self.variables))]
+        return [x.name for _, x in sorted(zip(var_domain_size, self.variables))]
+
+    def set_variables_domains(self, domains):
+        for k, v in domains:
+            self.variables[k].domain = v
+
+    @staticmethod
+    def at_least_one_empty_domain(domains):
+        for d in domains:
+            if len(d) == 0:
+                return True
+        return False
+
+    @staticmethod
+    def each_domain_has_one_value(domains):
+        for d in domains:
+            if len(d) != 1:
+                return False
+        return True
 
     def backtracking(self, domains):
-        for i in range(len(self.variables)):
-            self.variables[i].domain = domains[i]
+
+        filtered_domains = self.filter_domains()
+
+        if self.at_least_one_empty_domain(filtered_domains):
+            return {}
+        elif self.each_domain_has_one_value(filtered_domains):
+            solution = {}
+            for x in self.variables:
+                solution[x.name] = x.domain[0]
+            return solution
+        else:
+            order = self.variables_order()
+
 
         """
         if all len(domains) == 1:
