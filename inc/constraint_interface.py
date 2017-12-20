@@ -13,6 +13,7 @@ class Constraint:
         self.x = x
         self.y = y
         self.table = {}
+
         for i in range(len(table)):
             for j in range(len(table[i])):
                 if table[i][j]:

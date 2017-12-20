@@ -25,6 +25,10 @@ class AC3Constraint(Constraint):
         else:
             raise Exception("Error in filter_from: filtering from a variable that doesn't belong to the constraint")
 
+        if self.x.name == "e" and self.y.name == "h":
+            if self.x.domain[0] == self.y.domain[0]:
+                print("")
+
         value_to_pop = []
 
         if main_var.delta_is_empty():

@@ -18,8 +18,8 @@ class Solver:
         :param Y: second variable of the constraint
         :param exp: must be a STRING formatted as valid Python 3 boolean expression.
         Nota Bene:
-        - address each variable with its name, so if the name of the first variable is "x"
-            then use "x" inside the expression
+        - address first variable with "$1"
+        - address second variable with "$2"
         - all constants are allowed
         - all comparison operator are allowed (>, <, >=, <=, =, !=)
         - all aritmetic operators are allowed (+, -, *, /, %)
@@ -28,10 +28,10 @@ class Solver:
         :return: boolean matrix table
         """
         table = []
-        if X.name in exp:
-            exp = exp.replace(X.name, "x")
-        if Y.name in exp:
-            exp = exp.replace(Y.name, "y")
+        if "$1" in exp:
+            exp = exp.replace("$1", "x")
+        if "$2" in exp:
+            exp = exp.replace("$2", "y")
         for i in range(len(X.domain)):
             x = X.domain[i]
             table.append([])
@@ -100,7 +100,9 @@ class Solver:
         # then it won't be rebuilt so the followin method will be run
         # just one time
         self.propagation.build_graph(self.constraints.values())
-        self.propagation.run()
+        if not self.propagation.run():
+            for x in self.variables.values():
+                x.domain = []
         return self.get_variables_domains()
 
     def get_variables_order(self, domains=None):
@@ -118,6 +120,7 @@ class Solver:
     def set_variables_domains(self, domains):
         for name, values in domains.items():
             self.variables[name].domain = values[:]
+            self.variables[name].reset_delta()
 
     @staticmethod
     def at_least_one_empty_domain(domains):
@@ -135,6 +138,57 @@ class Solver:
 
     def solve(self):
         return self.backtracking(self.get_variables_domains())
+
+    def simple_solve(self):
+        return self.simple_bt(self.get_variables_domains())
+
+    def simple_bt(self, domains):
+        self.set_variables_domains(domains)
+
+        b = True
+        # try:
+        for k, v in domains.items():
+            _domains = {'a': [0], 'b': [2], 'c': [4], 'd': [7], 'e': [1], 'f': [3], 'g': [5], 'h': [1]}
+            if v[0] != _domains[k][0]:
+                b = False
+                break
+        # except Exception:
+        # b = False
+
+        if b:
+            pass
+
+        filtered_domains = self.filter_domains()
+
+        if self.at_least_one_empty_domain(filtered_domains):
+            return {}
+        elif self.each_domain_has_one_value(filtered_domains):
+            solution = {}
+            if self.each_domain_has_one_value(self.filter_domains()):
+                # if after filtering no value is removed then we have a good
+                # solution for our problem
+                for x in self.variables.values():
+                    solution[x.name] = x.domain[0]
+            return solution
+        else:
+            # get the name of the first variable x s.t. len(x.domain) > 1
+            phi = None
+            for x in self.variables.values():
+                if len(filtered_domains[x.name]) > 1:
+                    phi = x.name
+                    break
+            if phi is None:
+                raise Exception("Very odd error: this should never occur!")
+
+            # now phi is the pivot variable for this calling of backtrack function
+
+            for k in range(len(filtered_domains[phi])):
+                new_domains = dict(filtered_domains)
+                new_domains[phi] = [filtered_domains[phi][k]]
+                solution = self.simple_bt(dict(new_domains))
+                if solution != {}:
+                    return solution
+
 
     def backtracking(self, domains):
         self.set_variables_domains(domains)
