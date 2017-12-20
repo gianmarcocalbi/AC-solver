@@ -4,8 +4,16 @@ from inc.constraint_interface import *
 class AC6Constraint(Constraint):
     def __init__(self, x, y, table, name=""):
         Constraint.__init__(self, x, y, table, name)
+        self.S = {
+            x.id: {},
+            y.id: {}
+        }
+        self.initialize()
 
-        # AC6 initialization
+    def initialize(self):
+        x = self.x
+        y = self.y
+
         self.S = {
             x.id: {},
             y.id: {}

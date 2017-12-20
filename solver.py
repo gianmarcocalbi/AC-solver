@@ -1,6 +1,5 @@
 from inc.variable import *
 from inc.propagation import *
-from inc.backtracking import *
 
 
 class Solver:
@@ -93,44 +92,52 @@ class Solver:
         return c.name
 
     def filter_domains(self):
-        self.propagation.build_graph(list(self.constraints.values()))
+        # initialize all contraints
+        for c in self.constraints.values():
+            c.initialize()
+
+        # build propagation graph, if the graph has already been built
+        # then it won't be rebuilt so the followin method will be run
+        # just one time
+        self.propagation.build_graph(self.constraints.values())
         self.propagation.run()
-        filtered_domains = {}
-        for x in self.variables:
-            filtered_domains[x.name] = x.domain
-        return filtered_domains
+        return self.get_variables_domains()
 
-    def solve(self):
-        if not self.propagation.run():
-            return []
+    def get_variables_order(self, domains=None):
+        if domains is None:
+            domains = self.get_variables_domains()
+        var_domain_size = [len(val) for val in domains.values()]
+        return [k for _, k in sorted(zip(var_domain_size, domains.keys()))]
 
-        self.sort_variables()
-
-        return self.backtracking([v.domain for v in self.variables])
-
-    def get_domains_order(self, domains):
-        var_domain_size = [len(x.domain) for x in self.variables]
-        return [x.name for _, x in sorted(zip(var_domain_size, self.variables))]
+    def get_variables_domains(self):
+        domains = {}
+        for x in self.variables.values():
+            domains[x.name] = x.domain[:]
+        return domains
 
     def set_variables_domains(self, domains):
-        for k, v in domains:
-            self.variables[k].domain = v
+        for name, values in domains.items():
+            self.variables[name].domain = values[:]
 
     @staticmethod
     def at_least_one_empty_domain(domains):
-        for d in domains:
+        for d in domains.values():
             if len(d) == 0:
                 return True
         return False
 
     @staticmethod
     def each_domain_has_one_value(domains):
-        for d in domains:
+        for d in domains.values():
             if len(d) != 1:
                 return False
         return True
 
+    def solve(self):
+        return self.backtracking(self.get_variables_domains())
+
     def backtracking(self, domains):
+        self.set_variables_domains(domains)
 
         filtered_domains = self.filter_domains()
 
@@ -138,28 +145,29 @@ class Solver:
             return {}
         elif self.each_domain_has_one_value(filtered_domains):
             solution = {}
-            for x in self.variables:
-                solution[x.name] = x.domain[0]
+            if self.each_domain_has_one_value(self.filter_domains()):
+                # if after filtering no value is removed then we have a good
+                # solution for our problem
+                for x in self.variables.values():
+                    solution[x.name] = x.domain[0]
             return solution
         else:
-            order = self.variables_order()
+            variables_order = self.get_variables_order(filtered_domains)
+            # get the name of the first variable x s.t. len(x.domain) > 1
+            phi = None
+            for i in range(len(filtered_domains)):
+                name = variables_order[i]
+                if len(filtered_domains[name]) > 1:
+                    phi = name
+                    break
+            if phi is None:
+                raise Exception("Very odd error: this should never occur!")
 
+            # now phi is the pivot variable for this calling of backtrack function
 
-        """
-        if all len(domains) == 1:
-            # then is a full assignment A = (x1, x2, ..., xN) for the problem
-            if accepted(A):
-                return [A]
-            else:
-                # assignement is not valid
-                return []
-        else:
-            # restrict one variable domain
-            x <- first variable of which len(x.domain) > 1
-            return 
-        """
-
-        if len(self.backtracking([v.domain for v in self.variables])) == 0:
-            return []
-        else:
-            pass
+            for k in range(len(filtered_domains[phi])):
+                new_domains = dict(filtered_domains)
+                new_domains[phi] = [filtered_domains[phi][k]]
+                solution = self.backtracking(new_domains)
+                if solution != {}:
+                    return solution

@@ -1,5 +1,9 @@
-l = list(range(10))
-for x in l[:]:
-    print(x)
-    if x == 8:
-        l.remove(8)
+domains = {
+    "a": [0, 1, 2, 3, 4, 5],
+    "b": [0, 1, 2, 3, 4, 5, 7, 8, 9],
+    "c": [0, 1, 2]
+}
+
+for (k, v) in domains.items():
+    print(k)
+    print(v)

@@ -4,8 +4,17 @@ from inc.constraint_interface import *
 class AC4Constraint(Constraint):
     def __init__(self, x, y, table, name=""):
         Constraint.__init__(self, x, y, table, name)
+        self.S = {
+            x.id: {},
+            y.id: {}
+        }
+        self.initialize()
 
+    def initialize(self):
         # AC4 initialization
+        x = self.x
+        y = self.y
+
         self.S = {
             x.id: {},
             y.id: {}

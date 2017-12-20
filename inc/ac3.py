@@ -4,7 +4,10 @@ from inc.constraint_interface import *
 class AC3Constraint(Constraint):
     def __init__(self, x, y, table, name=""):
         Constraint.__init__(self, x, y, table, name)
-        x.propagation.enqueue(x)
+        self.initialize()
+
+    def initialize(self):
+        self.x.propagation.enqueue(self.x)
 
     def filter_from(self, var):
         """

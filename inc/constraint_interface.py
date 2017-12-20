@@ -36,3 +36,7 @@ class Constraint:
     @abc.abstractmethod
     def filter_from(self, var):
         pass
+
+    @abc.abstractmethod
+    def initialize(self):
+        pass
