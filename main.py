@@ -20,7 +20,7 @@ if __name__ == "__main__":
     print(solver.get_variable_by_name("c").domain)
     """
     """
-    solver = Solver(AC3Constraint)
+    solver = Solver(AC2001Constraint)
     solver.add_variable([0,1,2], "a")
     solver.add_variable([0,1], "b")
     solver.add_variable([0,1], "c")

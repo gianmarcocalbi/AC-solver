@@ -23,22 +23,22 @@ class AC2001Constraint(Constraint):
             return False
 
         for a in x.domain[:]:
-            self.S[x.id][a] = []
+            self.S[x.id][a] = None
             found = False
             for b in y.domain[:]:
                 if self.consistent(a, b):
-                    self.S[x.id][a].append(b)
+                    self.S[x.id][a] = b
                     found = True
                     break
             if not found:
                 x.remove_value(a)
 
         for b in y.domain[:]:
-            self.S[y.id][b] = []
+            self.S[y.id][b] = None
             found = False
             for a in x.domain[:]:
                 if self.consistent(a, b):
-                    self.S[y.id][b].append(a)
+                    self.S[y.id][b] = a
                     found = True
                     break
             if not found:
@@ -84,29 +84,27 @@ class AC2001Constraint(Constraint):
         for i in range(len(main_var.delta)):
             a = main_var.delta[i]
             if a in self.S[main_var.id]:
-                for b in self.S[main_var.id][a]:
-                    # self.S[supp_var.id][b].remove(a)
-                    found = False
-                    alt_a = None
+                for b in supp_var.domain[:]:
+                    z = self.S[supp_var.id][b]
+                    if z == a:
+                        found = False
+                        alt_a = None
+                        keys = list(self.S[main_var.id].keys())
 
-                    keys = list(self.S[main_var.id].keys())
+                        for j in range(keys.index(a) + 1, len(keys)):
+                            if main_var.is_in_domain(keys[j]):
+                                alt_a = keys[j]
+                                if main_var == self.x:
+                                    found = self.consistent(alt_a, b)
+                                else:
+                                    found = self.consistent(b, alt_a)
+                            if found:
+                                break
 
-                    for j in range(keys.index(a), len(keys)):
-                        if main_var.is_in_domain(keys[j]):
-                            alt_a = keys[j]
-                            if main_var == self.x:
-                                found = self.consistent(alt_a, b)
-                            else:
-                                found = self.consistent(b, alt_a)
                         if found:
-                            break
-
-                    if found:
-                        self.S[main_var.id][alt_a].append(b)
-                    else:
-                        supp_var.remove_value(b)
-                        # del self.S[supp_var.id][b]
+                            self.S[supp_var.id][b] = alt_a
+                        else:
+                            supp_var.remove_value(b)
                 self.S[main_var.id][a] = []
-                #del self.S[main_var.id][a]
 
         return len(main_var.domain) > 0
