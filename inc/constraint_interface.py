@@ -17,8 +17,8 @@ class Constraint:
         for i in range(len(table)):
             for j in range(len(table[i])):
                 if table[i][j]:
-                    a = self.x.domain[i]
-                    b = self.y.domain[j]
+                    a = self.x.orig_domain[i]
+                    b = self.y.orig_domain[j]
                     if not a in self.table:
                         self.table[a] = {}
                     self.table[a][b] = True

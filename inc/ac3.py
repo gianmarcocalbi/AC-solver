@@ -7,7 +7,7 @@ class AC3Constraint(Constraint):
         # self.initialize()
 
     def initialize(self):
-        self.x.propagation.enqueue(self.x)
+        self.x.propagation.enqueue(self.x, self.y)
         return True
 
     def filter_from(self, var):
@@ -26,9 +26,10 @@ class AC3Constraint(Constraint):
         else:
             raise Exception("Error in filter_from: filtering from a variable that doesn't belong to the constraint")
 
+
         value_to_pop = []
 
-        if main_var.delta_is_empty():
+        if main_var.delta_is_empty() and True:
             # if delta is empty is the first time we check this variable
             # so we must check all arcs
 

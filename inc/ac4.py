@@ -8,7 +8,7 @@ class AC4Constraint(Constraint):
             x.id: {},
             y.id: {}
         }
-        self.initialize()
+        # self.initialize()
 
     def initialize(self):
         # AC4 initialization

@@ -10,6 +10,7 @@ class Variable:
 
     def __init__(self, domain, propagation, name=""):
         global VARIABLE_NAMES
+        self.orig_domain = domain[:]
         self.domain = domain  # list of allowed values for this variable
         self.type = type(domain[0])
         self.propagation = propagation

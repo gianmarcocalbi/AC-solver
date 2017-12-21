@@ -91,13 +91,20 @@ class Solver:
         self.constraints[c.name] = c
         return c.name
 
-    def filter_domains(self):
-        # initialize all constraints
+    def initialize_constraints(self):
         for c in self.constraints.values():
             if not c.initialize():
-                for x in self.variables.values():
-                    x.domain = []
-                return self.get_variables_domains()
+                return False
+        return True
+
+    def filter_domains(self):
+        # initialize all constraints
+        # """
+        if not self.initialize_constraints():
+            for x in self.variables.values():
+                x.domain = []
+            return self.get_variables_domains()
+        # """
 
         # build propagation graph, if the graph has already been built
         # then it won't be rebuilt so the following method will be run

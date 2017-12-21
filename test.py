@@ -4,6 +4,4 @@ domains = {
     "c": [0, 1, 2]
 }
 
-for (k, v) in domains.items():
-    print(k)
-    print(v)
+print

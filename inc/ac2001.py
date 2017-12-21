@@ -98,12 +98,15 @@ class AC2001Constraint(Constraint):
                                 found = self.consistent(alt_a, b)
                             else:
                                 found = self.consistent(b, alt_a)
-
                         if found:
-                            self.S[main_var.id][alt_a].append(b)
-                        else:
-                            supp_var.remove_value(b)
-                            # del self.S[supp_var.id][b]
-                del self.S[main_var.id][a]
+                            break
+
+                    if found:
+                        self.S[main_var.id][alt_a].append(b)
+                    else:
+                        supp_var.remove_value(b)
+                        # del self.S[supp_var.id][b]
+                self.S[main_var.id][a] = []
+                #del self.S[main_var.id][a]
 
         return len(main_var.domain) > 0

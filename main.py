@@ -20,12 +20,12 @@ if __name__ == "__main__":
     print(solver.get_variable_by_name("c").domain)
     """
     """
-    solver = Solver(AC6Constraint)
-    solver.add_variable([0,1], "a")
-    solver.add_variable([0,1,2], "b")
-    solver.add_variable([0,1,2], "c")
-    solver.add_constraint("a", "b", "$1 == $2", "Cab")
-    solver.add_constraint("b", "c", "$1 == $2", "Cbc")
+    solver = Solver(AC3Constraint)
+    solver.add_variable([0,1,2], "a")
+    solver.add_variable([0,1], "b")
+    solver.add_variable([0,1], "c")
+    solver.add_custom_constraint("a", "b", [(0,0),(1,1),(2,1)], "Cab")
+    solver.add_custom_constraint("b", "c", [(0,0),(0,1)], "Cbc")
     print(solver.filter_domains())
     print(solver.get_variable_by_name("a").domain)
     print(solver.get_variable_by_name("b").domain)
@@ -34,26 +34,26 @@ if __name__ == "__main__":
 
     # """
     # 8 queens
-    solver = Solver(AC4Constraint)
-    n = 4
+    solver = Solver(AC2001Constraint)
+    n = 8
     c = ["a", "b", "c", "d", "e", "f", "g", "h"]
     # d = {'a': [0], 'b': [4], 'c': [1, 3, 4, 5, 6, 7], 'd': [1, 2, 4, 5, 6, 7], 'e': [1, 2, 3, 5, 6, 7], 'f': [1, 2, 3, 4, 6, 7], 'g': [1, 2, 3, 4, 5, 7], 'h': [1, 2, 3, 4, 5, 6]}
-    # d = {'a': [0], 'b': [4], 'c': [1,4], 'd': [5], 'e': [2], 'f': [6], 'g': [1], 'h': [3]}
-    d = {'a': [1, 2, 3, 4], 'b': [1, 2, 3, 4], 'c': [0], 'd': [2]}
+    # d = {'a': [0], 'b': [4], 'c': [1,7], 'd': [5], 'e': [2], 'f': [6], 'g': [1], 'h': [3]}
+    d = {'a': [1], 'b': [0, 1, 2, 3], 'c': [0, 1, 2, 3], 'd': [0, 1, 2, 3]}
     for i in range(n):
-        # solver.add_variable(list(range(n)), c[i])
-        solver.add_variable(d[c[i]], c[i])
+        solver.add_variable(list(range(n)), c[i])
+        #solver.add_variable(d[c[i]], c[i])
 
     for i in range(n - 1):
         for j in range(i + 1, n):
             solver.add_constraint(c[i], c[j],
                                   "$1 != $2 and $1 != ($2 - " + str(j - i) + ") and $1 != ($2 + " + str(j - i) + ")")
 
-    # solution = solver.simple_solve()
-    solution = solver.filter_domains()
+    solution = solver.simple_solve()
+    #solution = solver.filter_domains()
 
     for i in range(n):
         print("D(" + c[i] + ") = " + str(solver.get_variable_by_name(c[i]).domain))
 
     print(solution)
-    # """
+    #"""

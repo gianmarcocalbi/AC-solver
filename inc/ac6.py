@@ -23,7 +23,7 @@ class AC6Constraint(Constraint):
             return False
 
         for a in x.domain[:]:
-            if not a in self.S[x.id]:
+            if not (a in self.S[x.id]):
                 self.S[x.id][a] = []
             found = False
             for b in y.domain[:]:
@@ -37,11 +37,11 @@ class AC6Constraint(Constraint):
                 x.remove_value(a)
 
         for b in y.domain[:]:
-            if not b in self.S[y.id]:
+            if not (b in self.S[y.id]):
                 self.S[y.id][b] = []
             found = False
             for a in x.domain[:]:
-                if not a in self.S[x.id]:
+                if not (a in self.S[x.id]):
                     self.S[x.id][a] = []
                 if self.consistent(a, b):
                     self.S[x.id][a].append(b)
@@ -105,12 +105,15 @@ class AC6Constraint(Constraint):
                                 found = self.consistent(alt_a, b)
                             else:
                                 found = self.consistent(b, alt_a)
-
                         if found:
-                            self.S[main_var.id][alt_a].append(b)
-                        else:
-                            supp_var.remove_value(b)
-                            # del self.S[supp_var.id][b]
+                            break
+
+                    if found:
+                        self.S[main_var.id][alt_a].append(b)
+                    else:
+                        supp_var.remove_value(b)
+                        # del self.S[supp_var.id][b]
+                self.S[main_var.id][a] = []
                 #del self.S[main_var.id][a]
 
         return len(main_var.domain) > 0
