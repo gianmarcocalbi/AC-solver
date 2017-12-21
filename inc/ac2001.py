@@ -8,7 +8,7 @@ class AC2001Constraint(Constraint):
             x.id: {},
             y.id: {}
         }
-        self.initialize()
+        # self.initialize()
 
     def initialize(self):
         x = self.x
@@ -18,6 +18,10 @@ class AC2001Constraint(Constraint):
             x.id: {},
             y.id: {}
         }
+
+        if len(x.domain) == 0 or len(y.domain) == 0:
+            return False
+
         for a in x.domain[:]:
             self.S[x.id][a] = []
             found = False
@@ -39,6 +43,8 @@ class AC2001Constraint(Constraint):
                     break
             if not found:
                 y.remove_value(b)
+
+        return True
 
     def filter_from(self, var):
         """

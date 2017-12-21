@@ -20,6 +20,9 @@ class AC4Constraint(Constraint):
             y.id: {}
         }
 
+        if len(x.domain) == 0 or len(y.domain) == 0:
+            return False
+
         for a in x.domain[:]:
             self.S[x.id][a] = []
             for b in y.domain[:]:
@@ -30,12 +33,14 @@ class AC4Constraint(Constraint):
                     self.S[y.id][b].append(a)
             if len(self.S[x.id][a]) == 0:
                 x.remove_value(a)
-                del self.S[x.id][a]
+                # del self.S[x.id][a]
 
         for b in y.domain[:]:
             if len(self.S[y.id][b]) == 0:
                 y.remove_value(b)
-                del self.S[y.id][b]
+                # del self.S[y.id][b]
+
+        return True
 
 
     def filter_from(self, var):

@@ -92,12 +92,15 @@ class Solver:
         return c.name
 
     def filter_domains(self):
-        # initialize all contraints
+        # initialize all constraints
         for c in self.constraints.values():
-            c.initialize()
+            if not c.initialize():
+                for x in self.variables.values():
+                    x.domain = []
+                return self.get_variables_domains()
 
         # build propagation graph, if the graph has already been built
-        # then it won't be rebuilt so the followin method will be run
+        # then it won't be rebuilt so the following method will be run
         # just one time
         self.propagation.build_graph(self.constraints.values())
         if not self.propagation.run():
@@ -143,21 +146,10 @@ class Solver:
         return self.simple_bt(self.get_variables_domains())
 
     def simple_bt(self, domains):
+        if self.at_least_one_empty_domain(domains):
+            return {}
+
         self.set_variables_domains(domains)
-
-        b = True
-        # try:
-        for k, v in domains.items():
-            _domains = {'a': [0], 'b': [2], 'c': [4], 'd': [7], 'e': [1], 'f': [3], 'g': [5], 'h': [1]}
-            if v[0] != _domains[k][0]:
-                b = False
-                break
-        # except Exception:
-        # b = False
-
-        if b:
-            pass
-
         filtered_domains = self.filter_domains()
 
         if self.at_least_one_empty_domain(filtered_domains):
@@ -186,13 +178,16 @@ class Solver:
                 new_domains = dict(filtered_domains)
                 new_domains[phi] = [filtered_domains[phi][k]]
                 solution = self.simple_bt(dict(new_domains))
-                if solution != {}:
+                if solution != {}:  # and not solution is None
                     return solution
 
+            return {}
 
     def backtracking(self, domains):
-        self.set_variables_domains(domains)
+        if self.at_least_one_empty_domain(domains):
+            return {}
 
+        self.set_variables_domains(domains)
         filtered_domains = self.filter_domains()
 
         if self.at_least_one_empty_domain(filtered_domains):
@@ -223,5 +218,5 @@ class Solver:
                 new_domains = dict(filtered_domains)
                 new_domains[phi] = [filtered_domains[phi][k]]
                 solution = self.backtracking(new_domains)
-                if solution != {}:
+                if solution != {} and not solution is None:
                     return solution

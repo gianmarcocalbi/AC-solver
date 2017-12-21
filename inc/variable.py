@@ -14,7 +14,7 @@ class Variable:
         self.type = type(domain[0])
         self.propagation = propagation
         self.delta = []
-        self.delta_index = []
+        # self.delta_index = []
         self.id = id(self)
         if name in VARIABLE_NAMES:
             name = id(self)
@@ -34,7 +34,7 @@ class Variable:
             self.domain.pop(index)
             if not a in self.delta:
                 self.delta.append(a)
-                self.delta_index.append(index)
+                #self.delta_index.append(index)
             self.propagation.enqueue(self)
             return True
         return False
@@ -49,4 +49,4 @@ class Variable:
 
     def reset_delta(self):
         self.delta = []
-        self.delta_index = []
+        #self.delta_index = []

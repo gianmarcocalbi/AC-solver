@@ -4,10 +4,11 @@ from inc.constraint_interface import *
 class AC3Constraint(Constraint):
     def __init__(self, x, y, table, name=""):
         Constraint.__init__(self, x, y, table, name)
-        self.initialize()
+        # self.initialize()
 
     def initialize(self):
         self.x.propagation.enqueue(self.x)
+        return True
 
     def filter_from(self, var):
         """
@@ -24,10 +25,6 @@ class AC3Constraint(Constraint):
             supp_var = self.y
         else:
             raise Exception("Error in filter_from: filtering from a variable that doesn't belong to the constraint")
-
-        if self.x.name == "e" and self.y.name == "h":
-            if self.x.domain[0] == self.y.domain[0]:
-                print("")
 
         value_to_pop = []
 

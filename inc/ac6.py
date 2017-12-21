@@ -8,7 +8,7 @@ class AC6Constraint(Constraint):
             x.id: {},
             y.id: {}
         }
-        self.initialize()
+        # self.initialize()
 
     def initialize(self):
         x = self.x
@@ -18,6 +18,9 @@ class AC6Constraint(Constraint):
             x.id: {},
             y.id: {}
         }
+
+        if len(x.domain) == 0 or len(y.domain) == 0:
+            return False
 
         for a in x.domain[:]:
             if not a in self.S[x.id]:
@@ -47,6 +50,8 @@ class AC6Constraint(Constraint):
             if not found:
                 y.remove_value(b)
                 # del self.S[y.id][b]
+
+        return True
 
     def filter_from(self, var):
         """
@@ -106,6 +111,6 @@ class AC6Constraint(Constraint):
                         else:
                             supp_var.remove_value(b)
                             # del self.S[supp_var.id][b]
-                del self.S[main_var.id][a]
+                #del self.S[main_var.id][a]
 
         return len(main_var.domain) > 0
