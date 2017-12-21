@@ -1,5 +1,6 @@
 from inc.variable import *
 from inc.propagation import *
+import math
 
 
 class Solver:
@@ -224,6 +225,8 @@ class Solver:
             for k in range(len(filtered_domains[phi])):
                 new_domains = dict(filtered_domains)
                 new_domains[phi] = [filtered_domains[phi][k]]
-                solution = self.backtracking(new_domains)
-                if solution != {} and not solution is None:
+                solution = self.backtracking(dict(new_domains))
+                if solution != {}:  # and not solution is None:
                     return solution
+
+            return {}
