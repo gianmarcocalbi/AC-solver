@@ -1,3 +1,5 @@
+import time
+
 from solver import *
 from inc.ac3 import *
 from inc.ac4 import *
@@ -34,9 +36,11 @@ if __name__ == "__main__":
 
     # """
     # 8 queens
+    t0 = time.time()
+
     solver = Solver(AC2001Constraint)
-    n = 8
-    c = ["a", "b", "c", "d", "e", "f", "g", "h"]
+    n = 24
+    c = "abcdefghijklmnopqrstuwxyz"
     # d = {'a': [0], 'b': [4], 'c': [1, 3, 4, 5, 6, 7], 'd': [1, 2, 4, 5, 6, 7], 'e': [1, 2, 3, 5, 6, 7], 'f': [1, 2, 3, 4, 6, 7], 'g': [1, 2, 3, 4, 5, 7], 'h': [1, 2, 3, 4, 5, 6]}
     # d = {'a': [0], 'b': [4], 'c': [1,7], 'd': [5], 'e': [2], 'f': [6], 'g': [1], 'h': [3]}
     d = {'a': [1], 'b': [0, 1, 2, 3], 'c': [0, 1, 2, 3], 'd': [0, 1, 2, 3]}
@@ -49,11 +53,12 @@ if __name__ == "__main__":
             solver.add_constraint(c[i], c[j],
                                   "$1 != $2 and $1 != ($2 - " + str(j - i) + ") and $1 != ($2 + " + str(j - i) + ")")
 
-    solution = solver.simple_solve()
+    solution = solver.solve()
     #solution = solver.filter_domains()
 
     for i in range(n):
         print("D(" + c[i] + ") = " + str(solver.get_variable_by_name(c[i]).domain))
 
     print(solution)
+    print(time.time() - t0)
     #"""
